@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/google/go-cmp/cmp"
-	"github.com/suzuki-shunsuke/tfcmt/pkg/domain"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/domain"
 )
 
 func TestLoadFile(t *testing.T) {

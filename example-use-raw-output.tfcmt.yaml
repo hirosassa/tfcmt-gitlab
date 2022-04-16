@@ -1,5 +1,5 @@
 ci:
-  owner: "suzuki-shunsuke"
+  owner: "hirosassa"
   repo: "tfcmt"
 terraform:
   use_raw_output: true

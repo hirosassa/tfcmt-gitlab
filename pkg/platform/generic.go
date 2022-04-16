@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/suzuki-shunsuke/tfcmt/pkg/domain"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/domain"
 )
 
 type Param struct {

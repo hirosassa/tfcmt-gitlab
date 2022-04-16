@@ -3,7 +3,7 @@ package config
 import (
 	"errors"
 
-	"github.com/suzuki-shunsuke/tfcmt/pkg/domain"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/domain"
 )
 
 type Complement struct {

@@ -4,8 +4,8 @@ import (
 	"context"
 	"testing"
 
-	"github.com/suzuki-shunsuke/tfcmt/pkg/notifier"
-	"github.com/suzuki-shunsuke/tfcmt/pkg/terraform"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/notifier"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/terraform"
 )
 
 func TestNotifyNotify(t *testing.T) {
@@ -232,7 +232,7 @@ func TestNotifyNotify(t *testing.T) {
 				Owner: "owner",
 				Repo:  "repo",
 				PR: PullRequest{
-					Revision: "Merge pull request #123 from suzuki-shunsuke/tfcmt",
+					Revision: "Merge pull request #123 from hirosassa/tfcmt-gitlab",
 					Number:   0, // For apply, it is always 0
 				},
 				Parser:             terraform.NewApplyParser(),

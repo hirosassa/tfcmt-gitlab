@@ -6,10 +6,10 @@ import (
 	"os"
 
 	"github.com/google/go-github/v39/github"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/notifier"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/terraform"
 	"github.com/sirupsen/logrus"
 	"github.com/suzuki-shunsuke/github-comment-metadata/metadata"
-	"github.com/suzuki-shunsuke/tfcmt/pkg/notifier"
-	"github.com/suzuki-shunsuke/tfcmt/pkg/terraform"
 )
 
 // NotifyService handles communication with the notification related

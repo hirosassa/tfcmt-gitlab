@@ -5,8 +5,8 @@ import (
 	"os"
 	"strconv"
 
+	"github.com/hirosassa/tfcmt-gitlab/pkg/config"
 	"github.com/suzuki-shunsuke/go-ci-env/cienv"
-	"github.com/suzuki-shunsuke/tfcmt/pkg/config"
 )
 
 func Complement(cfg *config.Config) error {

@@ -32,4 +32,4 @@ tasks:
   - name: install
     description: go install
     usage: go install
-    script: go install ./cmd/tfcmt
+    script: go install ./cmd/tfcmt-gitlab

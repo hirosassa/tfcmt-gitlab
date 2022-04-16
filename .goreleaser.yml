@@ -1,12 +1,10 @@
-project_name: tfcmt
-env:
-  - GO111MODULE=on
+project_name: tfcmt-gitlab
 before:
   hooks:
     - go mod tidy
 builds:
-  - main: ./cmd/tfcmt
-    binary: tfcmt
+  - main: ./cmd/tfcmt-gitlab
+    binary: tfcmt-gitlab
     env:
       - CGO_ENABLED=0
 archives:
@@ -23,7 +21,7 @@ archives:
 release:
   prerelease: true # we update release note manually before releasing
   header: |
-    [Pull Requests](https://github.com/suzuki-shunsuke/tfcmt/pulls?q=is%3Apr+milestone%3A{{.Tag}}) | [Issues](https://github.com/suzuki-shunsuke/tfcmt/issues?q=is%3Aissue+milestone%3A{{.Tag}}) | https://github.com/suzuki-shunsuke/tfcmt/compare/{{.PreviousTag}}...{{.Tag}}
+    [Pull Requests](https://github.com/hirosassa/tfcmt-gitlab/pulls?q=is%3Apr+milestone%3A{{.Tag}}) | [Issues](https://github.com/hirosassa/tfcmt-gitlab/issues?q=is%3Aissue+milestone%3A{{.Tag}}) | https://github.com/hirosassa/tfcmt-gitlab/compare/{{.PreviousTag}}...{{.Tag}}
 brews:
 -
   # NOTE: make sure the url_template, the token and given repo (github or gitlab) owner and name are from the
@@ -31,19 +29,19 @@ brews:
 
   # GitHub/GitLab repository to push the formula to
   tap:
-    owner: suzuki-shunsuke
-    name: homebrew-tfcmt
+    owner: hirosassa
+    name: homebrew-tfcmt-gitlab
     token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
   # The project name and current git tag are used in the format string.
   commit_msg_template: "Brew formula update for {{ .ProjectName }} version {{ .Tag }}"
   # Your app's homepage.
   # Default is empty.
-  homepage: https://github.com/suzuki-shunsuke/tfcmt
+  homepage: https://github.com/hirosassa/tfcmt-gitlab
 
   # Template of your app's description.
   # Default is empty.
   description: |
-    Fork of mercari/tfnotify. tfcmt enhances tfnotify in many ways, including Terraform >= v0.15 support and advanced formatting options
+    Fork of shunsuke-suzuki/tfcmt. tfcmt-gitlab is a GitLab supported version of tfcmt.
   license: MIT
 
   # Setting this will prevent goreleaser to actually try to commit the updated
@@ -57,4 +55,4 @@ brews:
   # So you can `brew test` your formula.
   # Default is empty.
   test: |
-    system "#{bin}/tfcmt --version"
+    system "#{bin}/tfcmt-gitlab --version"
