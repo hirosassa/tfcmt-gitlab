@@ -11,13 +11,13 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig/v3"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/apperr"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/config"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/notifier"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/notifier/github"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/platform"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/terraform"
 	"github.com/mattn/go-colorable"
-	"github.com/suzuki-shunsuke/tfcmt/pkg/apperr"
-	"github.com/suzuki-shunsuke/tfcmt/pkg/config"
-	"github.com/suzuki-shunsuke/tfcmt/pkg/notifier"
-	"github.com/suzuki-shunsuke/tfcmt/pkg/notifier/github"
-	"github.com/suzuki-shunsuke/tfcmt/pkg/platform"
-	"github.com/suzuki-shunsuke/tfcmt/pkg/terraform"
 )
 
 type Controller struct {

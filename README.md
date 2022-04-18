@@ -1,16 +1,15 @@
-# tfcmt
+# tfcmt-gitlab
 
-[![Build Status](https://github.com/suzuki-shunsuke/tfcmt/workflows/test/badge.svg)](https://github.com/suzuki-shunsuke/tfcmt/actions)
-[![Go Report Card](https://goreportcard.com/badge/github.com/suzuki-shunsuke/tfcmt)](https://goreportcard.com/report/github.com/suzuki-shunsuke/tfcmt)
-[![GitHub last commit](https://img.shields.io/github/last-commit/suzuki-shunsuke/tfcmt.svg)](https://github.com/suzuki-shunsuke/tfcmt)
-[![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/suzuki-shunsuke/tfcmt/master/LICENSE)
+[![Build Status](https://github.com/hirosassa/tfcmt-gitlab/workflows/test/badge.svg)](https://github.com/hirosassa/tfcmt-gitlab/actions)
+[![Go Report Card](https://goreportcard.com/badge/github.com/hirosassa/tfcmt-gitlab)](https://goreportcard.com/report/github.com/hirosassa/tfcmt-gitlab)
+[![GitHub last commit](https://img.shields.io/github/last-commit/hirosassa/tfcmt-gitlab.svg)](https://github.com/hirosassa/tfcmt-gitlab)
+[![License](http://img.shields.io/badge/license-mit-blue.svg?style=flat-square)](https://raw.githubusercontent.com/hirosassa/tfcmt-gitlab/main/LICENSE)
 
-Fork of [mercari/tfnotify](https://github.com/mercari/tfnotify), enhancing tfnotify in many ways including Terraform >= v0.15 support and advanced formatting options.
+Fork of [suzuki-shunsuke/tfcmt](https://github.com/suzuki-shunsuke/tfcmt), supporting GitLab (dropped GitHub support).
 
 ## Document
 
-* https://suzuki-shunsuke.github.io/tfcmt/
-* https://github.com/suzuki-shunsuke/tfcmt-docs
+TBA
 
 ## License
 

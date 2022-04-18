@@ -1,10 +1,10 @@
 ci:
   owner:
   - type: envsubst
-    value: suzuki-shunsuke
+    value: hirosassa
   repo:
   - type: envsubst
-    value: tfcmt
+    value: tfcmt-gitlab
 terraform:
   plan:
     template: |

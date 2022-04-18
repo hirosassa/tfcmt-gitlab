@@ -1,8 +1,8 @@
 package cli
 
 import (
-	"github.com/suzuki-shunsuke/tfcmt/pkg/controller"
-	"github.com/suzuki-shunsuke/tfcmt/pkg/terraform"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/controller"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/terraform"
 	"github.com/urfave/cli/v2"
 )
 

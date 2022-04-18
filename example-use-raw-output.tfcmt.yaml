@@ -1,6 +1,6 @@
 ci:
-  owner: "suzuki-shunsuke"
-  repo: "tfcmt"
+  owner: "hirosassa"
+  repo: "tfcmt-gitlab"
 terraform:
   use_raw_output: true
   plan:
