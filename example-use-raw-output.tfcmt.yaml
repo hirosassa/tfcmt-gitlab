@@ -1,6 +1,6 @@
 ci:
   owner: "hirosassa"
-  repo: "tfcmt"
+  repo: "tfcmt-gitlab"
 terraform:
   use_raw_output: true
   plan:

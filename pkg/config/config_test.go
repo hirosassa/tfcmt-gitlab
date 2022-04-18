@@ -35,12 +35,12 @@ func TestLoadFile(t *testing.T) {
 					SHA:  []domain.ComplementEntry{},
 					Owner: []domain.ComplementEntry{
 						&ComplementEnvsubstEntry{
-							Value: "suzuki-shunsuke",
+							Value: "hirosassa",
 						},
 					},
 					Repo: []domain.ComplementEntry{
 						&ComplementEnvsubstEntry{
-							Value: "tfcmt",
+							Value: "tfcmt-gitlab",
 						},
 					},
 					Vars: map[string][]domain.ComplementEntry{},
