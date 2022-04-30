@@ -18,8 +18,8 @@ type Config struct {
 	EmbeddedVarNames []string          `yaml:"embedded_var_names"`
 	Templates        map[string]string
 	Log              Log
-	GHEBaseURL       string     `yaml:"ghe_base_url"`
-	GitHubToken      string     `yaml:"-"`
+	BaseURL          string     `yaml:"base_url"`
+	GitLabToken      string     `yaml:"-"`
 	Complement       Complement `yaml:"ci"`
 	PlanPatch        bool       `yaml:"plan_patch"`
 }

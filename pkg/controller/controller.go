@@ -170,8 +170,8 @@ func (ctrl *Controller) getNotifier(ctx context.Context) (notifier.Notifier, err
 		labels = a
 	}
 	client, err := gitlab.NewClient(gitlab.Config{
-		Token:     ctrl.Config.GitHubToken,
-		BaseURL:   ctrl.Config.GHEBaseURL,
+		Token:     ctrl.Config.GitLabToken,
+		BaseURL:   ctrl.Config.BaseURL,
 		NameSpace: ctrl.Config.CI.NameSpace,
 		Project:   ctrl.Config.CI.Project,
 		MR: gitlab.MergeRequest{

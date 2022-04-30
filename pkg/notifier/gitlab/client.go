@@ -2,6 +2,7 @@ package gitlab
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"strings"
 
@@ -71,7 +72,11 @@ func NewClient(cfg Config) (*Client, error) {
 		token = os.Getenv(EnvToken)
 	}
 	if token == "" {
-		return &Client{}, errors.New("gitlab token is missing")
+		token = os.Getenv("GITLAB_TOKEN")
+		fmt.Println(token)
+		if token == "" {
+			return &Client{}, errors.New("github token is missing")
+		}
 	}
 
 	client, err := gitlab.NewClient(token)
