@@ -1,8 +1,8 @@
 ci:
-  owner:
+  namespace:
   - type: envsubst
     value: hirosassa
-  repo:
+  project:
   - type: envsubst
     value: tfcmt-gitlab
 terraform:

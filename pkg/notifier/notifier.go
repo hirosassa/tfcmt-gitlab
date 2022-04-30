@@ -1,13 +1,12 @@
 package notifier
 
 import (
-	"context"
 	"os/exec"
 )
 
 // Notifier is a notification interface
 type Notifier interface {
-	Notify(ctx context.Context, param ParamExec) (int, error)
+	Notify(param ParamExec) (int, error)
 }
 
 type ParamExec struct {

@@ -30,15 +30,15 @@ func TestLoadFile(t *testing.T) {
 					UseRawOutput: false,
 				},
 				Complement: Complement{
-					PR:   []domain.ComplementEntry{},
+					MR:   []domain.ComplementEntry{},
 					Link: []domain.ComplementEntry{},
 					SHA:  []domain.ComplementEntry{},
-					Owner: []domain.ComplementEntry{
+					NameSpace: []domain.ComplementEntry{
 						&ComplementEnvsubstEntry{
 							Value: "hirosassa",
 						},
 					},
-					Repo: []domain.ComplementEntry{
+					Project: []domain.ComplementEntry{
 						&ComplementEnvsubstEntry{
 							Value: "tfcmt-gitlab",
 						},

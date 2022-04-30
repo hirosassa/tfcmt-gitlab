@@ -14,7 +14,7 @@ import (
 	"github.com/hirosassa/tfcmt-gitlab/pkg/apperr"
 	"github.com/hirosassa/tfcmt-gitlab/pkg/config"
 	"github.com/hirosassa/tfcmt-gitlab/pkg/notifier"
-	"github.com/hirosassa/tfcmt-gitlab/pkg/notifier/github"
+	"github.com/hirosassa/tfcmt-gitlab/pkg/notifier/gitlab"
 	"github.com/hirosassa/tfcmt-gitlab/pkg/platform"
 	"github.com/hirosassa/tfcmt-gitlab/pkg/terraform"
 	"github.com/mattn/go-colorable"
@@ -62,7 +62,7 @@ func (ctrl *Controller) Run(ctx context.Context, command Command) error {
 	cmd.Stderr = io.MultiWriter(os.Stderr, uncolorizedStderr, uncolorizedCombinedOutput)
 	_ = cmd.Run()
 
-	return apperr.NewExitError(ntf.Notify(ctx, notifier.ParamExec{
+	return apperr.NewExitError(ntf.Notify(notifier.ParamExec{
 		Stdout:         stdout.String(),
 		Stderr:         stderr.String(),
 		CombinedOutput: combinedOutput.String(),
@@ -86,8 +86,8 @@ func (ctrl *Controller) renderTemplate(tpl string) (string, error) {
 	return buf.String(), nil
 }
 
-func (ctrl *Controller) renderGitHubLabels() (github.ResultLabels, error) { //nolint:cyclop
-	labels := github.ResultLabels{
+func (ctrl *Controller) renderGitHubLabels() (gitlab.ResultLabels, error) { //nolint:cyclop
+	labels := gitlab.ResultLabels{
 		AddOrUpdateLabelColor: ctrl.Config.Terraform.Plan.WhenAddOrUpdateOnly.Color,
 		DestroyLabelColor:     ctrl.Config.Terraform.Plan.WhenDestroy.Color,
 		NoChangesLabelColor:   ctrl.Config.Terraform.Plan.WhenNoChanges.Color,
@@ -100,13 +100,13 @@ func (ctrl *Controller) renderGitHubLabels() (github.ResultLabels, error) { //no
 	}
 
 	if labels.AddOrUpdateLabelColor == "" {
-		labels.AddOrUpdateLabelColor = "1d76db" // blue
+		labels.AddOrUpdateLabelColor = "#1d76db" // blue
 	}
 	if labels.DestroyLabelColor == "" {
-		labels.DestroyLabelColor = "d93f0b" // red
+		labels.DestroyLabelColor = "#d93f0b" // red
 	}
 	if labels.NoChangesLabelColor == "" {
-		labels.NoChangesLabelColor = "0e8a16" // green
+		labels.NoChangesLabelColor = "#0e8a16" // green
 	}
 
 	if ctrl.Config.Terraform.Plan.WhenAddOrUpdateOnly.Label == "" {
@@ -161,7 +161,7 @@ func (ctrl *Controller) renderGitHubLabels() (github.ResultLabels, error) { //no
 }
 
 func (ctrl *Controller) getNotifier(ctx context.Context) (notifier.Notifier, error) {
-	labels := github.ResultLabels{}
+	labels := gitlab.ResultLabels{}
 	if !ctrl.Config.Terraform.Plan.DisableLabel {
 		a, err := ctrl.renderGitHubLabels()
 		if err != nil {
@@ -169,14 +169,14 @@ func (ctrl *Controller) getNotifier(ctx context.Context) (notifier.Notifier, err
 		}
 		labels = a
 	}
-	client, err := github.NewClient(ctx, github.Config{
-		Token:   ctrl.Config.GitHubToken,
-		BaseURL: ctrl.Config.GHEBaseURL,
-		Owner:   ctrl.Config.CI.Owner,
-		Repo:    ctrl.Config.CI.Repo,
-		PR: github.PullRequest{
+	client, err := gitlab.NewClient(gitlab.Config{
+		Token:     ctrl.Config.GitLabToken,
+		BaseURL:   ctrl.Config.BaseURL,
+		NameSpace: ctrl.Config.CI.NameSpace,
+		Project:   ctrl.Config.CI.Project,
+		MR: gitlab.MergeRequest{
 			Revision: ctrl.Config.CI.SHA,
-			Number:   ctrl.Config.CI.PRNumber,
+			Number:   ctrl.Config.CI.MRNumber,
 		},
 		CI:                 ctrl.Config.CI.Link,
 		Parser:             ctrl.Parser,

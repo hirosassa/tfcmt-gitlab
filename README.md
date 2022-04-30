@@ -15,7 +15,7 @@ TBA
 
 ### License of original code
 
-This is a fork of [mercari/tfnotify](https://github.com/mercari/tfnotify), so about the origincal license, please see https://github.com/mercari/tfnotify#license .
+This is a fork of [mercari/tfnotify](https://github.com/mercari/tfnotify) and [suzuki-shunsuke/tfcmt](https://github.com/suzuki-shunsuke/tfcmt), so about the origincal license, please see https://github.com/mercari/tfnotify#license and https://github.com/suzuki-shunsuke/tfcmt#license.
 
 Copyright 2018 Mercari, Inc.
 

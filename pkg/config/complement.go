@@ -7,21 +7,21 @@ import (
 )
 
 type Complement struct {
-	PR    []domain.ComplementEntry
-	Owner []domain.ComplementEntry
-	Repo  []domain.ComplementEntry
-	SHA   []domain.ComplementEntry
-	Link  []domain.ComplementEntry
-	Vars  map[string][]domain.ComplementEntry
+	MR        []domain.ComplementEntry
+	NameSpace []domain.ComplementEntry
+	Project   []domain.ComplementEntry
+	SHA       []domain.ComplementEntry
+	Link      []domain.ComplementEntry
+	Vars      map[string][]domain.ComplementEntry
 }
 
 type rawComplement struct {
-	PR    []map[string]interface{}
-	Owner []map[string]interface{}
-	Repo  []map[string]interface{}
-	SHA   []map[string]interface{}
-	Link  []map[string]interface{}
-	Vars  map[string][]map[string]interface{}
+	MR        []map[string]interface{}
+	NameSpace []map[string]interface{}
+	Project   []map[string]interface{}
+	SHA       []map[string]interface{}
+	Link      []map[string]interface{}
+	Vars      map[string][]map[string]interface{}
 }
 
 func convComplementEntries(maps []map[string]interface{}) ([]domain.ComplementEntry, error) {
@@ -69,23 +69,23 @@ func (cpl *Complement) UnmarshalYAML(unmarshal func(interface{}) error) error {
 		return err
 	}
 
-	pr, err := convComplementEntries(val.PR)
+	mr, err := convComplementEntries(val.MR)
 	if err != nil {
 		return err
 	}
-	cpl.PR = pr
+	cpl.MR = mr
 
-	owner, err := convComplementEntries(val.Owner)
+	namespace, err := convComplementEntries(val.NameSpace)
 	if err != nil {
 		return err
 	}
-	cpl.Owner = owner
+	cpl.NameSpace = namespace
 
-	repo, err := convComplementEntries(val.Repo)
+	project, err := convComplementEntries(val.Project)
 	if err != nil {
 		return err
 	}
-	cpl.Repo = repo
+	cpl.Project = project
 
 	sha, err := convComplementEntries(val.SHA)
 	if err != nil {

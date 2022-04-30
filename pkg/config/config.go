@@ -18,19 +18,19 @@ type Config struct {
 	EmbeddedVarNames []string          `yaml:"embedded_var_names"`
 	Templates        map[string]string
 	Log              Log
-	GHEBaseURL       string     `yaml:"ghe_base_url"`
-	GitHubToken      string     `yaml:"-"`
+	BaseURL          string     `yaml:"base_url"`
+	GitLabToken      string     `yaml:"-"`
 	Complement       Complement `yaml:"ci"`
 	PlanPatch        bool       `yaml:"plan_patch"`
 }
 
 type CI struct {
-	Name     string
-	Owner    string
-	Repo     string
-	SHA      string
-	Link     string
-	PRNumber int
+	Name      string
+	NameSpace string
+	Project   string
+	SHA       string
+	Link      string
+	MRNumber  int
 }
 
 type Log struct {
@@ -102,16 +102,16 @@ func (cfg *Config) LoadFile(path string) error {
 
 // Validate validates config file
 func (cfg *Config) Validate() error {
-	if cfg.CI.Owner == "" {
-		return errors.New("repository owner is missing")
+	if cfg.CI.NameSpace == "" {
+		return errors.New("namespace is missing")
 	}
 
-	if cfg.CI.Repo == "" {
-		return errors.New("repository name is missing")
+	if cfg.CI.Project == "" {
+		return errors.New("project name is missing")
 	}
 
-	if cfg.CI.SHA == "" && cfg.CI.PRNumber <= 0 {
-		return errors.New("pull request number or SHA (revision) is needed")
+	if cfg.CI.SHA == "" && cfg.CI.MRNumber <= 0 {
+		return errors.New("merge request number or SHA (revision) is needed")
 	}
 	return nil
 }
