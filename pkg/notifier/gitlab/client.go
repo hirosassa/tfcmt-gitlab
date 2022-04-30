@@ -87,7 +87,8 @@ func NewClient(cfg Config) (*Client, error) {
 	if baseURL == EnvBaseURL {
 		baseURL = os.Getenv(EnvBaseURL)
 	}
-	if baseURL != "" {
+	if baseURL == "" {
+		baseURL = os.Getenv("CI_SERVER_URL")
 		client, err = gitlab.NewClient(token, gitlab.WithBaseURL(baseURL))
 		if err != nil {
 			return &Client{}, errors.New("failed to create a new gitlab api client")
