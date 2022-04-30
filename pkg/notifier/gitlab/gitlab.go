@@ -103,7 +103,7 @@ func (g *GitLab) ListMergeRequestLabels(mergeRequest int, opt *gitlab.GetMergeRe
 
 // GetLabel is a wrapper of https://pkg.go.dev/github.com/xanzy/go-gitlab#LabelsService.GetLabel
 func (g *GitLab) GetLabel(labelName string, options ...gitlab.RequestOptionFunc) (*gitlab.Label, *gitlab.Response, error) {
-	return g.Client.Labels.GetLabel(fmt.Sprintf("%s%s", g.namespace, g.project), labelName, options...)
+	return g.Client.Labels.GetLabel(fmt.Sprintf("%s/%s", g.namespace, g.project), labelName, options...)
 }
 
 // UpdateLabel is a wrapper of https://pkg.go.dev/github.com/xanzy/go-gitlab#LabelsService.UpdateLabel
