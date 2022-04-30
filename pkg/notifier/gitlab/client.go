@@ -73,7 +73,7 @@ func NewClient(cfg Config) (*Client, error) {
 	if token == "" {
 		token = os.Getenv("GITLAB_TOKEN")
 		if token == "" {
-			return &Client{}, errors.New("github token is missing")
+			return &Client{}, errors.New("gitlab token is missing")
 		}
 	}
 
