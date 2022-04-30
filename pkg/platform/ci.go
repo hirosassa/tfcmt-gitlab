@@ -8,33 +8,44 @@ import (
 	"github.com/hirosassa/tfcmt-gitlab/pkg/config"
 )
 
+const GitlabCI = "gitlabci"
+
 func Complement(cfg *config.Config) error {
-	if err := complementCIInfo(&cfg.CI); err != nil {
+	if err := complementWithCIEnv(&cfg.CI); err != nil {
 		return err
 	}
 
 	return complementWithGeneric(cfg)
 }
 
-func complementCIInfo(ci *config.CI) error {
+func complementWithCIEnv(ci *config.CI) error {
+	ci.Name = GitlabCI
+
+	if ci.NameSpace == "" {
+		ci.NameSpace = os.Getenv("CI_PROJECT_NAMESPACE")
+	}
+
+	if ci.Project == "" {
+		ci.Project = os.Getenv("CI_PROJECT_NAME")
+	}
+
+	if ci.SHA == "" {
+		ci.SHA = os.Getenv("CI_COMMIT_SHA")
+	}
+
 	if ci.MRNumber <= 0 {
-		if mrS := os.Getenv("CI_INFO_MR_NUMBER"); mrS != "" {
-			a, err := strconv.Atoi(mrS)
-			if err != nil {
-				return fmt.Errorf("parse CI_INFO_PR_NUMBER %s: %w", mrS, err)
-			}
-			ci.MRNumber = a
+		mr := os.Getenv("CI_MERGE_REQUEST_IID")
+		a, err := strconv.Atoi(mr)
+		if err != nil {
+			return fmt.Errorf("parse CI_MERGE_REQUEST_IID %s: %w", mr, err)
 		}
+		ci.MRNumber = a
+	}
+
+	if ci.Link == "" {
+		ci.Link = os.Getenv("CI_JOB_URL")
 	}
 	return nil
-}
-
-func getLink(ciname string) string {
-	switch ciname {
-	case "gilabci", "gitlab-ci":
-		return os.Getenv("CI_JOB_URL")
-	}
-	return ""
 }
 
 func complementWithGeneric(cfg *config.Config) error {

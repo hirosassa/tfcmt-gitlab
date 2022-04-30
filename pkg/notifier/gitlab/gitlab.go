@@ -115,12 +115,3 @@ func (g *GitLab) UpdateLabel(opt *gitlab.UpdateLabelOptions, options ...gitlab.R
 func (g *GitLab) GetCommit(sha string, options ...gitlab.RequestOptionFunc) (*gitlab.Commit, *gitlab.Response, error) {
 	return g.Client.Commits.GetCommit(fmt.Sprintf("%s/%s", g.namespace, g.project), sha, options...)
 }
-
-func labelContains(target string, labels gitlab.Labels) bool {
-	for _, label := range labels {
-		if label == target {
-			return true
-		}
-	}
-	return false
-}
