@@ -100,13 +100,13 @@ func (ctrl *Controller) renderGitHubLabels() (gitlab.ResultLabels, error) { //no
 	}
 
 	if labels.AddOrUpdateLabelColor == "" {
-		labels.AddOrUpdateLabelColor = "1d76db" // blue
+		labels.AddOrUpdateLabelColor = "#1d76db" // blue
 	}
 	if labels.DestroyLabelColor == "" {
-		labels.DestroyLabelColor = "d93f0b" // red
+		labels.DestroyLabelColor = "#d93f0b" // red
 	}
 	if labels.NoChangesLabelColor == "" {
-		labels.NoChangesLabelColor = "0e8a16" // green
+		labels.NoChangesLabelColor = "#0e8a16" // green
 	}
 
 	if ctrl.Config.Terraform.Plan.WhenAddOrUpdateOnly.Label == "" {
