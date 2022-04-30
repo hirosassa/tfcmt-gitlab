@@ -30,7 +30,7 @@ type Client struct {
 	API API
 }
 
-// Config is a configuration for GitHub client
+// Config is a configuration for GitLab client
 type Config struct {
 	Token     string
 	BaseURL   string
@@ -65,16 +65,9 @@ type service struct {
 
 // NewClient returns Client initialized with Config
 func NewClient(cfg Config) (*Client, error) {
-	token := cfg.Token
-	token = strings.TrimPrefix(token, "$")
-	if token == EnvToken {
-		token = os.Getenv(EnvToken)
-	}
+	token := getToken(cfg)
 	if token == "" {
-		token = os.Getenv("GITLAB_TOKEN")
-		if token == "" {
-			return &Client{}, errors.New("gitlab token is missing")
-		}
+		return &Client{}, errors.New("gitlab token is missing")
 	}
 
 	client, err := gitlab.NewClient(token)
@@ -82,13 +75,8 @@ func NewClient(cfg Config) (*Client, error) {
 		return &Client{}, errors.New("failed to create a new gitlab api client")
 	}
 
-	baseURL := cfg.BaseURL
-	baseURL = strings.TrimPrefix(baseURL, "$")
-	if baseURL == EnvBaseURL {
-		baseURL = os.Getenv(EnvBaseURL)
-	}
-	if baseURL == "" {
-		baseURL = os.Getenv("CI_SERVER_URL")
+	baseURL := getBaseUrl(cfg)
+	if baseURL != "" {
 		client, err = gitlab.NewClient(token, gitlab.WithBaseURL(baseURL))
 		if err != nil {
 			return &Client{}, errors.New("failed to create a new gitlab api client")
@@ -145,4 +133,40 @@ func (r *ResultLabels) IsResultLabel(label string) bool {
 	default:
 		return false
 	}
+}
+
+func getToken(cfg Config) string {
+	if cfg.Token == EnvToken { // specify via config default
+		return os.Getenv(EnvToken)
+	}
+
+	if strings.HasPrefix(cfg.Token, "$") { // specify via env
+		return os.Getenv(strings.TrimPrefix(cfg.Token, "$"))
+	}
+
+	if cfg.Token != "" && !strings.HasPrefix(cfg.Token, "$") { // sepcify directly
+		return cfg.Token
+	}
+
+	return os.Getenv(EnvToken) // specify via default
+}
+
+func getBaseUrl(cfg Config) string {
+	if cfg.BaseURL == EnvBaseURL { // specify via config default
+		return os.Getenv(EnvBaseURL)
+	}
+
+	if strings.HasPrefix(cfg.BaseURL, "$") { // specify via env
+		return os.Getenv(strings.TrimPrefix(cfg.BaseURL, "$"))
+	}
+
+	if cfg.BaseURL != "" && !strings.HasPrefix(cfg.BaseURL, "$") { // specify directly
+		return cfg.BaseURL
+	}
+
+	if os.Getenv("CI_SERVER_URL") != "" { // specify via CI env
+		return os.Getenv("CI_SERVER_URL")
+	}
+
+	return "" // specify default
 }

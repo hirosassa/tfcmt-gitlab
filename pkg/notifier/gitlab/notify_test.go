@@ -225,7 +225,7 @@ func TestNotifyNotify(t *testing.T) {
 			t.Errorf("test case: %s, got error %q", testCase.name, err)
 		}
 		if exitCode != testCase.exitCode {
-			t.Errorf("got %q but want %q", exitCode, testCase.exitCode)
+			t.Errorf("test case: %s, got %q but want %q", testCase.name, exitCode, testCase.exitCode)
 		}
 	}
 }
