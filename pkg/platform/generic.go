@@ -8,10 +8,10 @@ import (
 )
 
 type Param struct {
-	RepoOwner []domain.ComplementEntry
-	RepoName  []domain.ComplementEntry
+	NameSpace []domain.ComplementEntry
+	Project   []domain.ComplementEntry
 	SHA       []domain.ComplementEntry
-	PRNumber  []domain.ComplementEntry
+	MRNumber  []domain.ComplementEntry
 	Link      []domain.ComplementEntry
 	Vars      map[string][]domain.ComplementEntry
 }
@@ -43,12 +43,12 @@ func (gen *generic) returnString(entries []domain.ComplementEntry) string {
 	return s
 }
 
-func (gen *generic) RepoOwner() string {
-	return gen.returnString(gen.param.RepoOwner)
+func (gen *generic) NameSpace() string {
+	return gen.returnString(gen.param.NameSpace)
 }
 
-func (gen *generic) RepoName() string {
-	return gen.returnString(gen.param.RepoName)
+func (gen *generic) Project() string {
+	return gen.returnString(gen.param.Project)
 }
 
 func (gen *generic) SHA() string {
@@ -59,12 +59,12 @@ func (gen *generic) Link() string {
 	return gen.returnString(gen.param.Link)
 }
 
-func (gen *generic) IsPR() bool {
-	return gen.returnString(gen.param.PRNumber) != ""
+func (gen *generic) IsMR() bool {
+	return gen.returnString(gen.param.MRNumber) != ""
 }
 
 func (gen *generic) PRNumber() (int, error) {
-	s, err := gen.render(gen.param.PRNumber)
+	s, err := gen.render(gen.param.MRNumber)
 	if err != nil {
 		return 0, err
 	}

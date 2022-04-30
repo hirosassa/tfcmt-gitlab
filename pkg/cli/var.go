@@ -20,20 +20,20 @@ func parseVarOpts(vars []string, varsM map[string]string) error {
 }
 
 func parseOpts(ctx *cli.Context, cfg *config.Config) error {
-	if owner := ctx.String("owner"); owner != "" {
-		cfg.CI.Owner = owner
+	if namespace := ctx.String("namespace"); namespace != "" {
+		cfg.CI.NameSpace = namespace
 	}
 
-	if repo := ctx.String("repo"); repo != "" {
-		cfg.CI.Repo = repo
+	if project := ctx.String("project"); project != "" {
+		cfg.CI.Project = project
 	}
 
 	if sha := ctx.String("sha"); sha != "" {
 		cfg.CI.SHA = sha
 	}
 
-	if pr := ctx.Int("pr"); pr != 0 {
-		cfg.CI.PRNumber = pr
+	if mr := ctx.Int("mr"); mr != 0 {
+		cfg.CI.MRNumber = mr
 	}
 
 	if ctx.IsSet("patch") {

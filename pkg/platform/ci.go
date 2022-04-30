@@ -6,14 +6,9 @@ import (
 	"strconv"
 
 	"github.com/hirosassa/tfcmt-gitlab/pkg/config"
-	"github.com/suzuki-shunsuke/go-ci-env/cienv"
 )
 
 func Complement(cfg *config.Config) error {
-	if err := complementWithCIEnv(&cfg.CI); err != nil {
-		return err
-	}
-
 	if err := complementCIInfo(&cfg.CI); err != nil {
 		return err
 	}
@@ -22,14 +17,13 @@ func Complement(cfg *config.Config) error {
 }
 
 func complementCIInfo(ci *config.CI) error {
-	if ci.PRNumber <= 0 {
-		// support suzuki-shunsuke/ci-info
-		if prS := os.Getenv("CI_INFO_PR_NUMBER"); prS != "" {
-			a, err := strconv.Atoi(prS)
+	if ci.MRNumber <= 0 {
+		if mrS := os.Getenv("CI_INFO_MR_NUMBER"); mrS != "" {
+			a, err := strconv.Atoi(mrS)
 			if err != nil {
-				return fmt.Errorf("parse CI_INFO_PR_NUMBER %s: %w", prS, err)
+				return fmt.Errorf("parse CI_INFO_PR_NUMBER %s: %w", mrS, err)
 			}
-			ci.PRNumber = a
+			ci.MRNumber = a
 		}
 	}
 	return nil
@@ -37,87 +31,42 @@ func complementCIInfo(ci *config.CI) error {
 
 func getLink(ciname string) string {
 	switch ciname {
-	case "circleci", "circle-ci":
-		return os.Getenv("CIRCLE_BUILD_URL")
-	case "codebuild":
-		return os.Getenv("CODEBUILD_BUILD_URL")
-	case "github-actions":
-		return fmt.Sprintf(
-			"https://github.com/%s/actions/runs/%s",
-			os.Getenv("GITHUB_REPOSITORY"),
-			os.Getenv("GITHUB_RUN_ID"),
-		)
-	case "cloud-build", "cloudbuild":
-		return fmt.Sprintf(
-			"https://console.cloud.google.com/cloud-build/builds/%s?project=%s",
-			os.Getenv("BUILD_ID"),
-			os.Getenv("PROJECT_ID"),
-		)
+	case "gilabci", "gitlab-ci":
+		return os.Getenv("CI_JOB_URL")
 	}
 	return ""
-}
-
-func complementWithCIEnv(ci *config.CI) error {
-	if pt := cienv.Get(); pt != nil {
-		ci.Name = pt.CI()
-
-		if ci.Owner == "" {
-			ci.Owner = pt.RepoOwner()
-		}
-
-		if ci.Repo == "" {
-			ci.Repo = pt.RepoName()
-		}
-
-		if ci.SHA == "" {
-			ci.SHA = pt.SHA()
-		}
-
-		if ci.PRNumber <= 0 {
-			n, err := pt.PRNumber()
-			if err != nil {
-				return err
-			}
-			ci.PRNumber = n
-		}
-
-		if ci.Link == "" {
-			ci.Link = getLink(ci.Name)
-		}
-	}
-	return nil
 }
 
 func complementWithGeneric(cfg *config.Config) error {
 	gen := generic{
 		param: Param{
-			RepoOwner: cfg.Complement.Owner,
-			RepoName:  cfg.Complement.Repo,
+			NameSpace: cfg.Complement.NameSpace,
+			Project:   cfg.Complement.Project,
 			SHA:       cfg.Complement.SHA,
-			PRNumber:  cfg.Complement.PR,
+			MRNumber:  cfg.Complement.MR,
 			Link:      cfg.Complement.Link,
 			Vars:      cfg.Complement.Vars,
 		},
 	}
 
-	if cfg.CI.Owner == "" {
-		cfg.CI.Owner = gen.RepoOwner()
+	if cfg.CI.NameSpace == "" {
+		cfg.CI.NameSpace = gen.NameSpace()
 	}
 
-	if cfg.CI.Repo == "" {
-		cfg.CI.Repo = gen.RepoName()
+	if cfg.CI.Project == "" {
+		cfg.CI.Project = gen.Project()
 	}
 
 	if cfg.CI.SHA == "" {
 		cfg.CI.SHA = gen.SHA()
 	}
 
-	if cfg.CI.PRNumber <= 0 {
+	if cfg.CI.MRNumber <= 0 {
 		n, err := gen.PRNumber()
 		if err != nil {
 			return err
 		}
-		cfg.CI.PRNumber = n
+		cfg.CI.MRNumber = n
 	}
 
 	if cfg.CI.Link == "" {
