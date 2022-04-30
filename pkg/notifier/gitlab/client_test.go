@@ -5,12 +5,8 @@ import (
 	"testing"
 )
 
-func TestNewClient(t *testing.T) {
-	gitlabToken := os.Getenv(EnvToken)
-	defer func() {
-		os.Setenv(EnvToken, gitlabToken)
-	}()
-	os.Setenv(EnvToken, "")
+func TestNewClient(t *testing.T) { //nolint:paralleltest
+	t.Setenv(EnvToken, "")
 
 	testCases := []struct {
 		config   Config
@@ -72,12 +68,8 @@ func TestNewClient(t *testing.T) {
 	}
 }
 
-func TestNewClientWithBaseURL(t *testing.T) {
-	gitlabBaseURL := os.Getenv(EnvBaseURL)
-	defer func() {
-		os.Setenv(EnvBaseURL, gitlabBaseURL)
-	}()
-	os.Setenv(EnvBaseURL, "")
+func TestNewClientWithBaseURL(t *testing.T) { //nolint:paralleltest
+	t.Setenv(EnvBaseURL, "")
 
 	testCases := []struct {
 		config     Config
@@ -156,6 +148,7 @@ func TestNewClientWithBaseURL(t *testing.T) {
 }
 
 func TestIsNumber(t *testing.T) {
+	t.Parallel()
 	testCases := []struct {
 		mr   MergeRequest
 		isMR bool
