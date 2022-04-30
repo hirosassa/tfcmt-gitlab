@@ -75,8 +75,7 @@ func NewClient(cfg Config) (*Client, error) {
 		return &Client{}, errors.New("failed to create a new gitlab api client")
 	}
 
-	baseURL := getBaseUrl(cfg)
-	if baseURL != "" {
+	if baseURL := getBaseURL(cfg); baseURL != "" {
 		client, err = gitlab.NewClient(token, gitlab.WithBaseURL(baseURL))
 		if err != nil {
 			return &Client{}, errors.New("failed to create a new gitlab api client")
@@ -151,7 +150,7 @@ func getToken(cfg Config) string {
 	return os.Getenv(EnvToken) // specify via default
 }
 
-func getBaseUrl(cfg Config) string {
+func getBaseURL(cfg Config) string {
 	if cfg.BaseURL == EnvBaseURL { // specify via config default
 		return os.Getenv(EnvBaseURL)
 	}
