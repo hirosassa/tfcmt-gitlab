@@ -33,8 +33,7 @@ func complementWithCIEnv(ci *config.CI) error {
 		ci.SHA = os.Getenv("CI_COMMIT_SHA")
 	}
 
-	if ci.MRNumber <= 0 {
-		mr := os.Getenv("CI_MERGE_REQUEST_IID")
+	if mr := os.Getenv("CI_MERGE_REQUEST_IID"); mr != "" && ci.MRNumber <= 0 {
 		a, err := strconv.Atoi(mr)
 		if err != nil {
 			return fmt.Errorf("parse CI_MERGE_REQUEST_IID %s: %w", mr, err)
