@@ -67,6 +67,60 @@ It failed to parse the result.
 {{wrapCode .CombinedOutput}}
 </details>
 `
+
+	planTitleTemplate = "## {{if eq .ExitCode 1}}:x: Plan Failed{{else}}Plan Result{{end}}{{if .Vars.target}} ({{.Vars.target}}){{end}}"
+
+	applyTitleTemplate = "## {{if eq .ExitCode 0}}:white_check_mark: Apply Succeeded{{else}}:x: Apply Failed{{end}}{{if .Vars.target}} ({{.Vars.target}}){{end}}"
+
+	resultTemplate = "{{if .Result}}<pre><code>{{ .Result }}</code></pre>{{end}}"
+
+	updatedResourcesTemplate = `{{if .CreatedResources}}
+* Create
+{{- range .CreatedResources}}
+  * {{.}}
+{{- end}}{{end}}{{if .UpdatedResources}}
+* Update
+{{- range .UpdatedResources}}
+  * {{.}}
+{{- end}}{{end}}{{if .DeletedResources}}
+* Delete
+{{- range .DeletedResources}}
+  * {{.}}
+{{- end}}{{end}}{{if .ReplacedResources}}
+* Replace
+{{- range .ReplacedResources}}
+  * {{.}}
+{{- end}}{{end}}`
+
+	deletionWarningTemplate = `{{if .HasDestroy}}
+### :warning: Resource Deletion will happen :warning:
+This plan contains resource delete operation. Please check the plan result very carefully!
+{{end}}`
+
+	changedResultTemplate = `{{if .ChangedResult}}
+<details><summary>Change Result (Click me)</summary>
+{{wrapCode .ChangedResult}}
+</details>
+{{end}}`
+
+	changeOutsideTerraformTemplate = `{{if .ChangeOutsideTerraform}}
+<details><summary>:information_source: Objects have changed outside of Terraform</summary>
+
+_This feature was introduced from [Terraform v0.15.4](https://github.com/hashicorp/terraform/releases/tag/v0.15.4)._
+{{wrapCode .ChangeOutsideTerraform}}
+</details>
+{{end}}`
+
+	warningTemplate = `{{if .Warning}}
+## :warning: Warnings :warning:
+{{wrapCode .Warning}}
+{{end}}`
+
+	errorMessagesTemplate = `{{if .ErrorMessages}}
+## :warning: Errors
+{{range .ErrorMessages}}
+* {{. -}}
+{{- end}}{{end}}`
 )
 
 // CommonTemplate represents template entities
@@ -155,7 +209,7 @@ func wrapCode(text string) interface{} {
 	return htmltemplate.HTML("\n```hcl\n" + text + "\n```\n") //nolint:gosec
 }
 
-func generateOutput(kind, template string, data map[string]interface{}, useRawOutput bool) (string, error) {
+func generateOutput(kind, template string, data any, useRawOutput bool) (string, error) {
 	var b bytes.Buffer
 
 	if useRawOutput {
@@ -187,80 +241,25 @@ func generateOutput(kind, template string, data map[string]interface{}, useRawOu
 
 // Execute binds the execution result of terraform command into template
 func (t *Template) Execute() (string, error) {
-	data := map[string]interface{}{
-		"Result":                 t.Result,
-		"ChangedResult":          t.ChangedResult,
-		"ChangeOutsideTerraform": t.ChangeOutsideTerraform,
-		"Warning":                t.Warning,
-		"Link":                   t.Link,
-		"Vars":                   t.Vars,
-		"Stdout":                 t.Stdout,
-		"Stderr":                 t.Stderr,
-		"CombinedOutput":         t.CombinedOutput,
-		"ExitCode":               t.ExitCode,
-		"ErrorMessages":          t.ErrorMessages,
-		"CreatedResources":       t.CreatedResources,
-		"UpdatedResources":       t.UpdatedResources,
-		"DeletedResources":       t.DeletedResources,
-		"ReplacedResources":      t.ReplacedResources,
-		"HasDestroy":             t.HasDestroy,
-	}
-
 	templates := map[string]string{
-		"plan_title":  "## {{if eq .ExitCode 1}}:x: Plan Failed{{else}}Plan Result{{end}}{{if .Vars.target}} ({{.Vars.target}}){{end}}",
-		"apply_title": "## {{if eq .ExitCode 0}}:white_check_mark: Apply Succeeded{{else}}:x: Apply Failed{{end}}{{if .Vars.target}} ({{.Vars.target}}){{end}}",
-		"result":      "{{if .Result}}<pre><code>{{ .Result }}</code></pre>{{end}}",
-		"updated_resources": `{{if .CreatedResources}}
-* Create
-{{- range .CreatedResources}}
-  * {{.}}
-{{- end}}{{end}}{{if .UpdatedResources}}
-* Update
-{{- range .UpdatedResources}}
-  * {{.}}
-{{- end}}{{end}}{{if .DeletedResources}}
-* Delete
-{{- range .DeletedResources}}
-  * {{.}}
-{{- end}}{{end}}{{if .ReplacedResources}}
-* Replace
-{{- range .ReplacedResources}}
-  * {{.}}
-{{- end}}{{end}}`,
-		"deletion_warning": `{{if .HasDestroy}}
-### :warning: Resource Deletion will happen :warning:
-This plan contains resource delete operation. Please check the plan result very carefully!
-{{end}}`,
-		"changed_result": `{{if .ChangedResult}}
-<details><summary>Change Result (Click me)</summary>
-{{wrapCode .ChangedResult}}
-</details>
-{{end}}`,
-		"change_outside_terraform": `{{if .ChangeOutsideTerraform}}
-<details><summary>:information_source: Objects have changed outside of Terraform</summary>
-
-_This feature was introduced from [Terraform v0.15.4](https://github.com/hashicorp/terraform/releases/tag/v0.15.4)._
-{{wrapCode .ChangeOutsideTerraform}}
-</details>
-{{end}}`,
-		"warning": `{{if .Warning}}
-## :warning: Warnings :warning:
-{{wrapCode .Warning}}
-{{end}}`,
-		"error_messages": `{{if .ErrorMessages}}
-## :warning: Errors
-{{range .ErrorMessages}}
-* {{. -}}
-{{- end}}{{end}}`,
-		"guide_apply_failure":     "",
-		"guide_apply_parse_error": "",
+		"plan_title":               planTitleTemplate,
+		"apply_title":              applyTitleTemplate,
+		"result":                   resultTemplate,
+		"updated_resources":        updatedResourcesTemplate,
+		"deletion_warning":         deletionWarningTemplate,
+		"changed_result":           changedResultTemplate,
+		"change_outside_terraform": changeOutsideTerraformTemplate,
+		"warning":                  warningTemplate,
+		"error_messages":           errorMessagesTemplate,
+		"guide_apply_failure":      "",
+		"guide_apply_parse_error":  "",
 	}
 
 	for k, v := range t.Templates {
 		templates[k] = v
 	}
 
-	resp, err := generateOutput("default", addTemplates(t.Template, templates), data, t.UseRawOutput)
+	resp, err := generateOutput("default", addTemplates(t.Template, templates), t.CommonTemplate, t.UseRawOutput)
 	if err != nil {
 		return "", err
 	}
@@ -278,4 +277,42 @@ func addTemplates(tpl string, templates map[string]string) string {
 		tpl += `{{define "` + k + `"}}` + v + "{{end}}"
 	}
 	return tpl
+}
+
+func (t *Template) IsSamePlan(executedStr string) bool {
+	templateSplitted := strings.Split(t.Template, "\n")
+	planTitleLineIndex := -1
+	for i, ts := range templateSplitted {
+		if strings.Contains(ts, `template "plan_title"`) {
+			planTitleLineIndex = i
+		}
+	}
+
+	if planTitleLineIndex == -1 {
+		return false
+	}
+
+	targetSplitted := strings.Split(executedStr, "\n")
+	if len(targetSplitted) < planTitleLineIndex+1 {
+		return false
+	}
+	oldTitle := targetSplitted[planTitleLineIndex]
+
+	// attempt to detect changes in the exit code.
+	for _, exitCode := range []int{0, 1} {
+		commonTemplate := CommonTemplate{
+			ExitCode: exitCode,
+			Vars:     t.Vars,
+		}
+		newTitle, err := generateOutput("default", planTitleTemplate, commonTemplate, t.UseRawOutput)
+		if err != nil {
+			return false
+		}
+
+		if newTitle == oldTitle {
+			return true
+		}
+	}
+
+	return false
 }

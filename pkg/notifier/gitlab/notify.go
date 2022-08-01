@@ -81,16 +81,21 @@ func (g *NotifyService) Notify(param notifier.ParamExec) (int, error) { //nolint
 
 	if !isApply && cfg.Patch && cfg.MR.Number != 0 {
 		logE.Debug("try patching")
-		comments, err := g.client.Comment.List(cfg.MR.Number)
-		if err != nil {
-			logE.WithError(err).Debug("list comments")
-			if err := g.client.Comment.Post(body, PostOptions{
-				Number:   cfg.MR.Number,
-				Revision: cfg.MR.Revision,
-			}); err != nil {
-				return result.ExitCode, err
+		// If fail to list comments, try to create new post.
+		comments, _ := g.client.Comment.List(cfg.MR.Number)
+		for i := len(comments) - 1; i >= 0; i-- {
+			comment := comments[i]
+
+			if template.IsSamePlan(comment.Body) {
+				logE.Debugf("Patch comment from `%s` to `%s`", comment.Body, body)
+				if err := g.client.Comment.Patch(comment.ID, body, PostOptions{
+					Number:   cfg.MR.Number,
+					Revision: cfg.MR.Revision,
+				}); err != nil {
+					return result.ExitCode, err
+				}
+				return result.ExitCode, nil
 			}
-			return result.ExitCode, nil
 		}
 		logE.WithField("size", len(comments)).Debug("list comments")
 	}
