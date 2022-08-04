@@ -95,6 +95,19 @@ func TestTemplate_IsSamePlan(t *testing.T) {
 			},
 			expect: false,
 		},
+		{
+			name: "should return false when target is empty",
+			oldStr: `
+## Plan Result
+
+[CI link](http://example.com)
+`,
+			commonTemplate: terraform.CommonTemplate{
+				ExitCode: 0,
+				Vars:     nil,
+			},
+			expect: false,
+		},
 	}
 
 	for _, testCase := range testCases {
