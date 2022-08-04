@@ -280,6 +280,10 @@ func addTemplates(tpl string, templates map[string]string) string {
 }
 
 func (t *Template) IsSamePlan(executedStr string) bool {
+	if _, ok := t.CommonTemplate.Vars["target"]; !ok {
+		return false
+	}
+
 	templateSplitted := strings.Split(t.Template, "\n")
 	planTitleLineIndex := -1
 	for i, ts := range templateSplitted {
