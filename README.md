@@ -9,7 +9,18 @@ Fork of [suzuki-shunsuke/tfcmt](https://github.com/suzuki-shunsuke/tfcmt), suppo
 
 ## Document
 
-TBA
+Basic commands are as follows:
+
+```shell
+# plan
+tfcmt-gitlab plan --patch -- terraform plan -no-color
+
+# apply
+tfcmt-gitlab apply -- terraform apply -auto-approve -no-color
+```
+
+`tfcmt-gitlab` runs without any configuration file.
+The concrete examples of configuration of `tfcmt-gitlab` running on GitLab CI are available in [examples/getting-started](https://github.com/hirosassa/tfcmt-gitlab/tree/main/examples/getting-started).
 
 ## License
 

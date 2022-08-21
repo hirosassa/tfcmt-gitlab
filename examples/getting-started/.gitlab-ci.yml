@@ -1,0 +1,63 @@
+stages:
+  - fmt
+  - plan
+  - apply
+
+variables:
+  TF_PROJECT_DIR: examples/getting-started
+  COMPONENT: getting-started
+
+.scripts_install_tools_using_aqua: &scripts_install_tools_using_aqua |
+  apk add --upgrade curl # add tools not managed in aqua
+  curl -sSfL https://raw.githubusercontent.com/aquaproj/aqua-installer/v1.1.1/aqua-installer | sh -s -- -i /usr/local/bin/aqua -v v1.19.2
+  aqua -c aqua.yaml i
+  export AQUA_GLOBAL_CONFIG=./aqua.yaml
+  PATH=/root/.local/share/aquaproj-aqua/bin:$PATH
+
+.fmt-common:
+  stage: plan
+  script:
+    - cd ${TF_PROJECT_DIR}
+    - terraform fmt -recursive -diff=true -check=true
+
+.plan-common:
+  stage: plan
+  script:
+    - cd ${TF_PROJECT_DIR}
+    - terraform init
+    - tfcmt-gitlab -var "target:$COMPONENT" plan --patch -- terraform plan -no-color
+
+.apply-common:
+  stage: apply
+  script:
+    - cd ${TF_PROJECT_DIR}
+    - terraform init
+    - tfcmt-gitlab -var "target:$COMPONENT" apply -- terraform apply -auto-approve -no-color
+
+fmt:
+  image: alpine:3.16
+  stage: fmt
+  before_script:
+    - *scripts_install_tools_using_aqua
+  extends:
+    - .fmt_common
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+plan:
+  image: alpine:3.16
+  before_script:
+    - *scripts_install_tools_using_aqua
+  extends:
+    - .plan_common
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+apply:
+  image: alpine:3.16
+  before_script:
+    - *scripts_install_tools_using_aqua
+  extends:
+    - .apply_common
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'

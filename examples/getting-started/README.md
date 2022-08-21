@@ -1,3 +1,3 @@
 # Getting Started
 
-TBA
+The minimum example of `.gitlab-ci.yml` configuration running on GitLab.
