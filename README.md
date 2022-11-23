@@ -9,6 +9,13 @@ Fork of [suzuki-shunsuke/tfcmt](https://github.com/suzuki-shunsuke/tfcmt), suppo
 
 ## Document
 
+### Prerequisites
+
+Create and store GitLab access token in [project or group CI variables](https://docs.gitlab.com/ee/ci/variables/#add-a-cicd-variable-to-a-project) with key name `GITLAB_TOKEN`.
+
+ref: [Project access tokens | GitLab](https://docs.gitlab.com/ee/user/project/settings/project_access_tokens.html)
+
+
 Basic commands are as follows:
 
 ```shell
