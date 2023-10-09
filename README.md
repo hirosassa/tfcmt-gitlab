@@ -29,6 +29,20 @@ tfcmt-gitlab apply -- terraform apply -auto-approve -no-color
 `tfcmt-gitlab` runs without any configuration file.
 The concrete examples of configuration of `tfcmt-gitlab` running on GitLab CI are available in [examples/getting-started](https://github.com/hirosassa/tfcmt-gitlab/tree/main/examples/getting-started).
 
+## Install
+
+### GitHub Releases
+
+Download a prebuilt binary from [GitHub Releases](https://github.com/hirosassa/ksnotify/releases) and install it in $PATH.
+
+### aqua
+
+Install tfcmt-gitlab with [aqua](https://aquaproj.github.io/).
+
+```shell
+aqua g -i hirosassa/tfcmt-gitlab
+```
+
 ## License
 
 ### License of original code
