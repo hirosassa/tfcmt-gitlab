@@ -21,6 +21,7 @@ type API interface {
 	GetLabel(labelName string, options ...gitlab.RequestOptionFunc) (*gitlab.Label, *gitlab.Response, error)
 	UpdateLabel(opt *gitlab.UpdateLabelOptions, options ...gitlab.RequestOptionFunc) (*gitlab.Label, *gitlab.Response, error)
 	GetCommit(sha string, options ...gitlab.RequestOptionFunc) (*gitlab.Commit, *gitlab.Response, error)
+	ListMergeRequestsByCommit(sha string, options ...gitlab.RequestOptionFunc) ([]*gitlab.MergeRequest, *gitlab.Response, error)
 }
 
 // GitLab represents the attribute information necessary for requesting GitLab API
@@ -114,4 +115,8 @@ func (g *GitLab) UpdateLabel(opt *gitlab.UpdateLabelOptions, options ...gitlab.R
 // GetCommit is a wrapper of https://pkg.go.dev/github.com/xanzy/go-gitlab#CommitsService.GetCommit
 func (g *GitLab) GetCommit(sha string, options ...gitlab.RequestOptionFunc) (*gitlab.Commit, *gitlab.Response, error) {
 	return g.Client.Commits.GetCommit(fmt.Sprintf("%s/%s", g.namespace, g.project), sha, options...)
+}
+
+func (g *GitLab) ListMergeRequestsByCommit(sha string, options ...gitlab.RequestOptionFunc) ([]*gitlab.MergeRequest, *gitlab.Response, error) {
+	return g.Client.Commits.ListMergeRequestsByCommit(fmt.Sprintf("%s/%s", g.namespace, g.project), sha, options...)
 }

@@ -28,6 +28,22 @@ func (g *CommitsService) List(revision string) ([]string, error) {
 	return s, nil
 }
 
+func (g *CommitsService) ListMergeRequestIIDsByRevision(revision string) ([]int, error) {
+	if revision == "" {
+		return nil, errors.New("no revision specified")
+	}
+	mrs, _, err := g.client.API.ListMergeRequestsByCommit(revision)
+	if err != nil {
+		return nil, err
+	}
+
+	result := make([]int, len(mrs))
+	for i, mr := range mrs {
+		result[i] = mr.IID
+	}
+	return result, nil
+}
+
 // lastOne returns the hash of the previous commit of the given commit
 func (g *CommitsService) lastOne(commits []string, revision string) (string, error) {
 	if revision == "" {
