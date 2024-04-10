@@ -4,20 +4,29 @@ import (
 	"testing"
 
 	"github.com/hirosassa/tfcmt-gitlab/pkg/notifier"
+	gitlabmock "github.com/hirosassa/tfcmt-gitlab/pkg/notifier/gitlab/gen"
 	"github.com/hirosassa/tfcmt-gitlab/pkg/terraform"
+	gitlab "github.com/xanzy/go-gitlab"
+	"go.uber.org/mock/gomock"
 )
 
-func TestNotifyNotify(t *testing.T) {
+func TestNotifyNotify(t *testing.T) { //nolint:maintidx
 	t.Parallel()
 	testCases := []struct {
-		name      string
-		config    Config
-		ok        bool
-		exitCode  int
-		paramExec notifier.ParamExec
+		name                string
+		createMockGitLabAPI func(ctrl *gomock.Controller) *gitlabmock.MockAPI
+		config              Config
+		ok                  bool
+		exitCode            int
+		paramExec           notifier.ParamExec
 	}{
 		{
 			name: "invalid body (cannot parse)",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				api.EXPECT().CreateMergeRequestNote(1, gomock.Any()).Return(nil, nil, nil)
+				return api
+			},
 			config: Config{
 				Token:     "token",
 				NameSpace: "namespace",
@@ -40,6 +49,10 @@ func TestNotifyNotify(t *testing.T) {
 		},
 		{
 			name: "invalid mr",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				return api
+			},
 			config: Config{
 				Token:     "token",
 				NameSpace: "namespace",
@@ -62,6 +75,11 @@ func TestNotifyNotify(t *testing.T) {
 		},
 		{
 			name: "valid, error",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				api.EXPECT().CreateMergeRequestNote(1, gomock.Any()).Return(nil, nil, nil)
+				return api
+			},
 			config: Config{
 				Token:     "token",
 				NameSpace: "namespace",
@@ -84,6 +102,11 @@ func TestNotifyNotify(t *testing.T) {
 		},
 		{
 			name: "valid, and isMR",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				api.EXPECT().CreateMergeRequestNote(1, gomock.Any()).Return(nil, nil, nil)
+				return api
+			},
 			config: Config{
 				Token:     "token",
 				NameSpace: "namespace",
@@ -106,6 +129,12 @@ func TestNotifyNotify(t *testing.T) {
 		},
 		{
 			name: "valid, and isRevision",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				api.EXPECT().ListMergeRequestsByCommit("revision-revision").Return([]*gitlab.MergeRequest{{IID: 1}}, nil, nil)
+				api.EXPECT().CreateMergeRequestNote(1, gomock.Any()).Return(nil, nil, nil)
+				return api
+			},
 			config: Config{
 				Token:     "token",
 				NameSpace: "namespace",
@@ -128,6 +157,11 @@ func TestNotifyNotify(t *testing.T) {
 		},
 		{
 			name: "valid, and contains destroy",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				api.EXPECT().CreateMergeRequestNote(1, gomock.Any()).Return(nil, nil, nil)
+				return api
+			},
 			config: Config{
 				Token:     "token",
 				NameSpace: "namespace",
@@ -149,6 +183,11 @@ func TestNotifyNotify(t *testing.T) {
 		},
 		{
 			name: "valid with no change",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				api.EXPECT().CreateMergeRequestNote(1, gomock.Any()).Return(nil, nil, nil)
+				return api
+			},
 			config: Config{
 				Token:     "token",
 				NameSpace: "namespace",
@@ -170,6 +209,11 @@ func TestNotifyNotify(t *testing.T) {
 		},
 		{
 			name: "valid, contains destroy, but not to notify",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				api.EXPECT().CreateMergeRequestNote(1, gomock.Any()).Return(nil, nil, nil)
+				return api
+			},
 			config: Config{
 				Token:     "token",
 				NameSpace: "namespace",
@@ -191,6 +235,13 @@ func TestNotifyNotify(t *testing.T) {
 		},
 		{
 			name: "apply case",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				api.EXPECT().ListCommits(gomock.Any()).Return([]*gitlab.Commit{{ID: "1"}, {ID: "2"}}, nil, nil)
+				api.EXPECT().ListMergeRequestsByCommit("2").Return([]*gitlab.MergeRequest{{IID: 1}}, nil, nil)
+				api.EXPECT().CreateMergeRequestNote(1, gomock.Any()).Return(nil, nil, nil)
+				return api
+			},
 			config: Config{
 				Token:     "token",
 				NameSpace: "namespace",
@@ -214,18 +265,25 @@ func TestNotifyNotify(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		client, err := NewClient(testCase.config)
-		if err != nil {
-			t.Fatal(err)
-		}
-		api := newFakeAPI()
-		client.API = &api
-		exitCode, err := client.Notify.Notify(testCase.paramExec)
-		if (err == nil) != testCase.ok {
-			t.Errorf("test case: %s, got error %q", testCase.name, err)
-		}
-		if exitCode != testCase.exitCode {
-			t.Errorf("test case: %s, got %q but want %q", testCase.name, exitCode, testCase.exitCode)
-		}
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			client, err := NewClient(testCase.config)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+			client.API = testCase.createMockGitLabAPI(mockCtrl)
+
+			exitCode, err := client.Notify.Notify(testCase.paramExec)
+			if (err == nil) != testCase.ok {
+				t.Errorf("test case: %s, got error %q", testCase.name, err)
+			}
+			if exitCode != testCase.exitCode {
+				t.Errorf("test case: %s, got %q but want %q", testCase.name, exitCode, testCase.exitCode)
+			}
+		})
 	}
 }

@@ -4,20 +4,31 @@ import (
 	"reflect"
 	"testing"
 
+	gitlabmock "github.com/hirosassa/tfcmt-gitlab/pkg/notifier/gitlab/gen"
 	gitlab "github.com/xanzy/go-gitlab"
+	"go.uber.org/mock/gomock"
 )
 
 func TestCommentPost(t *testing.T) {
 	t.Parallel()
+	body := "body"
 	testCases := []struct {
-		config Config
-		body   string
-		opt    PostOptions
-		ok     bool
+		name                string
+		config              Config
+		createMockGitLabAPI func(ctrl *gomock.Controller) *gitlabmock.MockAPI
+		body                string
+		opt                 PostOptions
+		ok                  bool
 	}{
 		{
+			name:   "should post",
 			config: newFakeConfig(),
-			body:   "",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				api.EXPECT().CreateMergeRequestNote(1, &gitlab.CreateMergeRequestNoteOptions{Body: gitlab.String(body)}).Return(&gitlab.Note{}, nil, nil)
+				return api
+			},
+			body: body,
 			opt: PostOptions{
 				Number:   1,
 				Revision: "abcd",
@@ -25,8 +36,16 @@ func TestCommentPost(t *testing.T) {
 			ok: true,
 		},
 		{
+			name:   "should get mriid when PostOptions.Number is 0 and has PostOptions.Revision",
 			config: newFakeConfig(),
-			body:   "",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				mriid := 1
+				api.EXPECT().ListMergeRequestsByCommit("abcd").Return([]*gitlab.MergeRequest{{IID: mriid}}, nil, nil)
+				api.EXPECT().CreateMergeRequestNote(mriid, &gitlab.CreateMergeRequestNoteOptions{Body: gitlab.String(body)}).Return(&gitlab.Note{}, nil, nil)
+				return api
+			},
+			body: body,
 			opt: PostOptions{
 				Number:   0,
 				Revision: "abcd",
@@ -34,8 +53,14 @@ func TestCommentPost(t *testing.T) {
 			ok: true,
 		},
 		{
+			name:   "should post number 2",
 			config: newFakeConfig(),
-			body:   "",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				api.EXPECT().CreateMergeRequestNote(2, &gitlab.CreateMergeRequestNoteOptions{Body: gitlab.String(body)}).Return(&gitlab.Note{}, nil, nil)
+				return api
+			},
+			body: body,
 			opt: PostOptions{
 				Number:   2,
 				Revision: "",
@@ -43,8 +68,13 @@ func TestCommentPost(t *testing.T) {
 			ok: true,
 		},
 		{
+			name:   "should error PostOptions number=0 and Revision is empty",
 			config: newFakeConfig(),
-			body:   "",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				return api
+			},
+			body: "",
 			opt: PostOptions{
 				Number:   0,
 				Revision: "",
@@ -54,16 +84,23 @@ func TestCommentPost(t *testing.T) {
 	}
 
 	for _, testCase := range testCases {
-		client, err := NewClient(testCase.config)
-		if err != nil {
-			t.Fatal(err)
-		}
-		api := newFakeAPI()
-		client.API = &api
-		err = client.Comment.Post(testCase.body, testCase.opt)
-		if (err == nil) != testCase.ok {
-			t.Errorf("got error %q", err)
-		}
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			client, err := NewClient(testCase.config)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+			client.API = testCase.createMockGitLabAPI(mockCtrl)
+
+			err = client.Comment.Post(testCase.body, testCase.opt)
+			if (err == nil) != testCase.ok {
+				t.Errorf("got error %q", err)
+			}
+		})
 	}
 }
 
@@ -80,44 +117,48 @@ func TestCommentList(t *testing.T) {
 		},
 	}
 	testCases := []struct {
-		config   Config
-		number   int
-		ok       bool
-		comments []*gitlab.Note
+		name                string
+		config              Config
+		createMockGitLabAPI func(ctrl *gomock.Controller) *gitlabmock.MockAPI
+		number              int
+		ok                  bool
+		comments            []*gitlab.Note
 	}{
 		{
-			config:   newFakeConfig(),
+			name:   "should list comments",
+			config: newFakeConfig(),
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				api.EXPECT().ListMergeRequestNotes(1, gomock.Any()).Return(comments, &gitlab.Response{TotalPages: 1, NextPage: 1}, nil)
+				return api
+			},
 			number:   1,
-			ok:       true,
-			comments: comments,
-		},
-		{
-			config:   newFakeConfig(),
-			number:   12,
-			ok:       true,
-			comments: comments,
-		},
-		{
-			config:   newFakeConfig(),
-			number:   123,
 			ok:       true,
 			comments: comments,
 		},
 	}
 
 	for _, testCase := range testCases {
-		client, err := NewClient(testCase.config)
-		if err != nil {
-			t.Fatal(err)
-		}
-		api := newFakeAPI()
-		client.API = &api
-		comments, err := client.Comment.List(testCase.number)
-		if (err == nil) != testCase.ok {
-			t.Errorf("got error %q", err)
-		}
-		if !reflect.DeepEqual(comments, testCase.comments) {
-			t.Errorf("got %v but want %v", comments, testCase.comments)
-		}
+		testCase := testCase
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+
+			client, err := NewClient(testCase.config)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			mockCtrl := gomock.NewController(t)
+			defer mockCtrl.Finish()
+			client.API = testCase.createMockGitLabAPI(mockCtrl)
+
+			comments, err := client.Comment.List(testCase.number)
+			if (err == nil) != testCase.ok {
+				t.Errorf("got error %q", err)
+			}
+			if !reflect.DeepEqual(comments, testCase.comments) {
+				t.Errorf("got %v but want %v", comments, testCase.comments)
+			}
+		})
 	}
 }
