@@ -6,6 +6,11 @@ import (
 	gitlab "github.com/xanzy/go-gitlab"
 )
 
+const (
+	listPerPage = 100
+	maxPages    = 100
+)
+
 // CommentService handles communication with the comment related
 // methods of GitLab API
 type CommentService service
@@ -64,7 +69,7 @@ func (g *CommentService) List(number int) ([]*gitlab.Note, error) {
 	opt := &gitlab.ListMergeRequestNotesOptions{
 		ListOptions: gitlab.ListOptions{
 			Page:    1,
-			PerPage: 100,
+			PerPage: listPerPage,
 		},
 	}
 
@@ -73,7 +78,6 @@ func (g *CommentService) List(number int) ([]*gitlab.Note, error) {
 			number,
 			opt,
 		)
-
 		if err != nil {
 			return nil, err
 		}
@@ -86,7 +90,7 @@ func (g *CommentService) List(number int) ([]*gitlab.Note, error) {
 
 		opt.Page = resp.NextPage
 
-		if sentinel > 100 {
+		if sentinel > maxPages {
 			return nil, fmt.Errorf("gitlab.comment.list: too many pages, something went wrong")
 		}
 	}
