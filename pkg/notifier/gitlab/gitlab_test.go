@@ -2,7 +2,6 @@ package gitlab
 
 import (
 	"github.com/hirosassa/tfcmt-gitlab/pkg/terraform"
-	gitlab "github.com/xanzy/go-gitlab"
 )
 
 type fakeAPI struct {
