@@ -20,9 +20,9 @@ jobs:
         with:
           go-version-file: "go.mod"
 
-      - uses: aquaproj/aqua-installer@v2.1.2
+      - uses: aquaproj/aqua-installer@v3.0.0
         with:
-          aqua_version: v2.10.1
+          aqua_version: v2.27.0
 
       - uses: suzuki-shunsuke/github-action-golangci-lint@v0.1.4
       - name: Test
