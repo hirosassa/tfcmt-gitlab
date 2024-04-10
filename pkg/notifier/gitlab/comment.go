@@ -59,9 +59,37 @@ func (g *CommentService) Patch(note int, body string, opt PostOptions) error {
 
 // List lists comments on GitLab merge requests
 func (g *CommentService) List(number int) ([]*gitlab.Note, error) {
-	comments, _, err := g.client.API.ListMergeRequestNotes(
-		number,
-		&gitlab.ListMergeRequestNotesOptions{},
-	)
-	return comments, err
+	allComments := make([]*gitlab.Note, 0)
+
+	opt := &gitlab.ListMergeRequestNotesOptions{
+		ListOptions: gitlab.ListOptions{
+			Page:    1,
+			PerPage: 100,
+		},
+	}
+
+	for sentinel := 1; ; sentinel++ {
+		comments, resp, err := g.client.API.ListMergeRequestNotes(
+			number,
+			opt,
+		)
+
+		if err != nil {
+			return nil, err
+		}
+
+		allComments = append(allComments, comments...)
+
+		if resp.NextPage == 0 {
+			break
+		}
+
+		opt.Page = resp.NextPage
+
+		if sentinel > 100 {
+			return nil, fmt.Errorf("gitlab.comment.list: too many pages, something went wrong")
+		}
+	}
+
+	return allComments, nil
 }

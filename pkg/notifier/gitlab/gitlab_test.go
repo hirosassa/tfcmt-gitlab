@@ -45,6 +45,7 @@ func newFakeAPI() fakeAPI {
 		FakeListMergeRequestNotes: func(mergeRequest int, opt *gitlab.ListMergeRequestNotesOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Note, *gitlab.Response, error) {
 			var comments []*gitlab.Note
 			comments = []*gitlab.Note{
+				// same response to any page for now
 				{
 					ID:   371748792,
 					Body: "comment 1",
@@ -54,7 +55,16 @@ func newFakeAPI() fakeAPI {
 					Body: "comment 2",
 				},
 			}
-			return comments, nil, nil
+
+			// fake pagination with 2 pages
+			resp := &gitlab.Response{
+				NextPage: 0,
+			}
+			if opt.Page == 1 {
+				resp.NextPage = 2
+			}
+
+			return comments, resp, nil
 		},
 		FakePostCommitComment: func(sha string, opt *gitlab.PostCommitCommentOptions, options ...gitlab.RequestOptionFunc) (*gitlab.CommitComment, *gitlab.Response, error) {
 			return &gitlab.CommitComment{

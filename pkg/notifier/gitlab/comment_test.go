@@ -70,6 +70,16 @@ func TestCommentPost(t *testing.T) {
 func TestCommentList(t *testing.T) {
 	t.Parallel()
 	comments := []*gitlab.Note{
+		// page1
+		{
+			ID:   371748792,
+			Body: "comment 1",
+		},
+		{
+			ID:   371765743,
+			Body: "comment 2",
+		},
+		// page2
 		{
 			ID:   371748792,
 			Body: "comment 1",
