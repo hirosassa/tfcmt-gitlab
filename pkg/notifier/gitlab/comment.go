@@ -89,7 +89,7 @@ func (g *CommentService) List(number int) ([]*gitlab.Note, error) {
 			break
 		}
 
-		if sentinel > maxPages {
+		if sentinel >= maxPages {
 			logE := logrus.WithFields(logrus.Fields{
 				"program": "tfcmt",
 			})

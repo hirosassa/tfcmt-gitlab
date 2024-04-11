@@ -214,3 +214,35 @@ func TestCommentList(t *testing.T) {
 		})
 	}
 }
+
+func TestCommentListSentinel(t *testing.T) {
+	t.Parallel()
+
+	client, err := NewClient(newFakeConfig())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	createMockGitLabAPI := func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+		api := gitlabmock.NewMockAPI(ctrl)
+		api.EXPECT().ListMergeRequestNotes(1, gomock.Any()).MaxTimes(100).Return(
+			[]*gitlab.Note{},
+			&gitlab.Response{
+				NextPage: 1, // just cause infinite loop
+			},
+			nil,
+		)
+
+		return api
+	}
+
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	client.API = createMockGitLabAPI(mockCtrl)
+
+	_, err = client.Comment.List(1) // no assert res, only assert `.MaxTimes(100)`
+	if err != nil {
+		t.Errorf("got error %q", err)
+	}
+}
