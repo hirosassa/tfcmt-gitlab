@@ -1,6 +1,7 @@
 package gitlab
 
 import (
+	"errors"
 	"reflect"
 	"testing"
 
@@ -80,6 +81,23 @@ func TestCommentPost(t *testing.T) {
 				Revision: "",
 			},
 			ok: false,
+		},
+		{
+			name:   "should postForRevision when listMergeRequestIIDs is failed",
+			config: newFakeConfig(),
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				api.EXPECT().ListMergeRequestsByCommit("revision").Return(nil, nil, errors.New("error"))
+				// PostCommitComment should be called
+				api.EXPECT().PostCommitComment("revision", &gitlab.PostCommitCommentOptions{Note: gitlab.String(body)}).Return(&gitlab.CommitComment{}, nil, nil)
+				return api
+			},
+			body: body,
+			opt: PostOptions{
+				Number:   0,
+				Revision: "revision",
+			},
+			ok: true,
 		},
 	}
 

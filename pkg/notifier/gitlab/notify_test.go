@@ -234,11 +234,10 @@ func TestNotifyNotify(t *testing.T) { //nolint:maintidx
 			exitCode: 2,
 		},
 		{
-			name: "apply case",
+			name: "get MR IID when MR number is 0",
 			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
 				api := gitlabmock.NewMockAPI(ctrl)
-				api.EXPECT().ListCommits(gomock.Any()).Return([]*gitlab.Commit{{ID: "1"}, {ID: "2"}}, nil, nil)
-				api.EXPECT().ListMergeRequestsByCommit("2").Return([]*gitlab.MergeRequest{{IID: 1}}, nil, nil)
+				api.EXPECT().ListMergeRequestsByCommit("revision").Return([]*gitlab.MergeRequest{{IID: 1}}, nil, nil)
 				api.EXPECT().CreateMergeRequestNote(1, gomock.Any()).Return(nil, nil, nil)
 				return api
 			},
