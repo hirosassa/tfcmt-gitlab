@@ -124,16 +124,6 @@ func TestCommentPost(t *testing.T) {
 
 func TestCommentList(t *testing.T) {
 	t.Parallel()
-	comments := []*gitlab.Note{
-		{
-			ID:   371748792,
-			Body: "comment 1",
-		},
-		{
-			ID:   371765743,
-			Body: "comment 2",
-		},
-	}
 	testCases := []struct {
 		name                string
 		config              Config
@@ -147,12 +137,56 @@ func TestCommentList(t *testing.T) {
 			config: newFakeConfig(),
 			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
 				api := gitlabmock.NewMockAPI(ctrl)
-				api.EXPECT().ListMergeRequestNotes(1, gomock.Any()).Return(comments, &gitlab.Response{TotalPages: 1, NextPage: 1}, nil)
+				api.EXPECT().ListMergeRequestNotes(1, gomock.Any()).MaxTimes(2).DoAndReturn(
+					func(mergeRequest int, opt *gitlab.ListMergeRequestNotesOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Note, *gitlab.Response, error) {
+						res := []*gitlab.Note{
+							// same response to any page for now
+							{
+								ID:   371748792,
+								Body: "comment 1",
+							},
+							{
+								ID:   371765743,
+								Body: "comment 2",
+							},
+						}
+
+						// fake pagination with 2 pages
+						resp := &gitlab.Response{
+							NextPage: 0,
+						}
+						if opt.Page == 1 {
+							resp.NextPage = 2
+						}
+
+						return res, resp, nil
+					},
+				)
+
 				return api
 			},
-			number:   1,
-			ok:       true,
-			comments: comments,
+			number: 1,
+			ok:     true,
+			comments: []*gitlab.Note{
+				// page1
+				{
+					ID:   371748792,
+					Body: "comment 1",
+				},
+				{
+					ID:   371765743,
+					Body: "comment 2",
+				},
+				// page2
+				{
+					ID:   371748792,
+					Body: "comment 1",
+				},
+				{
+					ID:   371765743,
+					Body: "comment 2",
+				},
+			},
 		},
 	}
 
@@ -178,5 +212,37 @@ func TestCommentList(t *testing.T) {
 				t.Errorf("got %v but want %v", comments, testCase.comments)
 			}
 		})
+	}
+}
+
+func TestCommentListSentinel(t *testing.T) {
+	t.Parallel()
+
+	client, err := NewClient(newFakeConfig())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	createMockGitLabAPI := func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+		api := gitlabmock.NewMockAPI(ctrl)
+		api.EXPECT().ListMergeRequestNotes(1, gomock.Any()).MaxTimes(100).Return(
+			[]*gitlab.Note{},
+			&gitlab.Response{
+				NextPage: 1, // just cause infinite loop
+			},
+			nil,
+		)
+
+		return api
+	}
+
+	mockCtrl := gomock.NewController(t)
+	defer mockCtrl.Finish()
+
+	client.API = createMockGitLabAPI(mockCtrl)
+
+	_, err = client.Comment.List(1) // no assert res, only assert `.MaxTimes(100)`
+	if err != nil {
+		t.Errorf("got error %q", err)
 	}
 }

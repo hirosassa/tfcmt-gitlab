@@ -3,7 +3,13 @@ package gitlab
 import (
 	"fmt"
 
+	"github.com/sirupsen/logrus"
 	gitlab "github.com/xanzy/go-gitlab"
+)
+
+const (
+	listPerPage = 100
+	maxPages    = 100
 )
 
 // CommentService handles communication with the comment related
@@ -59,9 +65,40 @@ func (g *CommentService) Patch(note int, body string, opt PostOptions) error {
 
 // List lists comments on GitLab merge requests
 func (g *CommentService) List(number int) ([]*gitlab.Note, error) {
-	comments, _, err := g.client.API.ListMergeRequestNotes(
-		number,
-		&gitlab.ListMergeRequestNotesOptions{},
-	)
-	return comments, err
+	allComments := make([]*gitlab.Note, 0)
+
+	opt := &gitlab.ListMergeRequestNotesOptions{
+		ListOptions: gitlab.ListOptions{
+			Page:    1,
+			PerPage: listPerPage,
+		},
+	}
+
+	for sentinel := 1; ; sentinel++ {
+		comments, resp, err := g.client.API.ListMergeRequestNotes(
+			number,
+			opt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		allComments = append(allComments, comments...)
+
+		if resp.NextPage == 0 {
+			break
+		}
+
+		if sentinel >= maxPages {
+			logE := logrus.WithFields(logrus.Fields{
+				"program": "tfcmt",
+			})
+			logE.WithField("maxPages", maxPages).Debug("gitlab.comment.list: too many pages, something went wrong")
+			break
+		}
+
+		opt.Page = resp.NextPage
+	}
+
+	return allComments, nil
 }
