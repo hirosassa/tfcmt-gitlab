@@ -157,7 +157,32 @@ func TestCommentList(t *testing.T) {
 			config: newFakeConfig(),
 			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
 				api := gitlabmock.NewMockAPI(ctrl)
-				api.EXPECT().ListMergeRequestNotes(1, gomock.Any()).Return(comments, &gitlab.Response{TotalPages: 1, NextPage: 1}, nil)
+				api.EXPECT().ListMergeRequestNotes(1, gomock.Any()).MaxTimes(2).DoAndReturn(
+					func(mergeRequest int, opt *gitlab.ListMergeRequestNotesOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Note, *gitlab.Response, error) {
+						res := []*gitlab.Note{
+							// same response to any page for now
+							{
+								ID:   371748792,
+								Body: "comment 1",
+							},
+							{
+								ID:   371765743,
+								Body: "comment 2",
+							},
+						}
+
+						// fake pagination with 2 pages
+						resp := &gitlab.Response{
+							NextPage: 0,
+						}
+						if opt.Page == 1 {
+							resp.NextPage = 2
+						}
+
+						return res, resp, nil
+					},
+				)
+
 				return api
 			},
 			number:   1,
