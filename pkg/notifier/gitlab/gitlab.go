@@ -14,7 +14,6 @@ type API interface {
 	GetMergeRequest(mergeRequest int, opt *gitlab.GetMergeRequestsOptions, options ...gitlab.RequestOptionFunc) (*gitlab.MergeRequest, *gitlab.Response, error)
 	UpdateMergeRequest(mergeRequest int, opt *gitlab.UpdateMergeRequestOptions, options ...gitlab.RequestOptionFunc) (*gitlab.MergeRequest, *gitlab.Response, error)
 	PostCommitComment(sha string, opt *gitlab.PostCommitCommentOptions, options ...gitlab.RequestOptionFunc) (*gitlab.CommitComment, *gitlab.Response, error)
-	ListCommits(opt *gitlab.ListCommitsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Commit, *gitlab.Response, error)
 	AddMergeRequestLabels(labels *[]string, mergeRequest int) (gitlab.Labels, error)
 	RemoveMergeRequestLabels(labels *[]string, mergeRequest int) (gitlab.Labels, error)
 	ListMergeRequestLabels(mergeRequest int, opt *gitlab.GetMergeRequestsOptions, options ...gitlab.RequestOptionFunc) (gitlab.Labels, error)
@@ -58,11 +57,6 @@ func (g *GitLab) UpdateMergeRequest(mergeRequest int, opt *gitlab.UpdateMergeReq
 // PostCommitComment is a wrapper of https://godoc.org/github.com/xanzy/go-gitlab#CommitsService.PostCommitComment
 func (g *GitLab) PostCommitComment(sha string, opt *gitlab.PostCommitCommentOptions, options ...gitlab.RequestOptionFunc) (*gitlab.CommitComment, *gitlab.Response, error) {
 	return g.Client.Commits.PostCommitComment(fmt.Sprintf("%s/%s", g.namespace, g.project), sha, opt, options...)
-}
-
-// ListCommits is a wrapper of https://godoc.org/github.com/xanzy/go-gitlab#CommitsService.ListCommits
-func (g *GitLab) ListCommits(opt *gitlab.ListCommitsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Commit, *gitlab.Response, error) {
-	return g.Client.Commits.ListCommits(fmt.Sprintf("%s/%s", g.namespace, g.project), opt, options...)
 }
 
 // AddMergeRequestLabels adds labels on the merge request.

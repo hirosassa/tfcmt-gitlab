@@ -138,27 +138,6 @@ func (mr *MockAPIMockRecorder) GetMergeRequest(mergeRequest, opt any, options ..
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMergeRequest", reflect.TypeOf((*MockAPI)(nil).GetMergeRequest), varargs...)
 }
 
-// ListCommits mocks base method.
-func (m *MockAPI) ListCommits(opt *gitlab.ListCommitsOptions, options ...gitlab.RequestOptionFunc) ([]*gitlab.Commit, *gitlab.Response, error) {
-	m.ctrl.T.Helper()
-	varargs := []any{opt}
-	for _, a := range options {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "ListCommits", varargs...)
-	ret0, _ := ret[0].([]*gitlab.Commit)
-	ret1, _ := ret[1].(*gitlab.Response)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
-}
-
-// ListCommits indicates an expected call of ListCommits.
-func (mr *MockAPIMockRecorder) ListCommits(opt any, options ...any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	varargs := append([]any{opt}, options...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListCommits", reflect.TypeOf((*MockAPI)(nil).ListCommits), varargs...)
-}
-
 // ListMergeRequestLabels mocks base method.
 func (m *MockAPI) ListMergeRequestLabels(mergeRequest int, opt *gitlab.GetMergeRequestsOptions, options ...gitlab.RequestOptionFunc) (gitlab.Labels, error) {
 	m.ctrl.T.Helper()
