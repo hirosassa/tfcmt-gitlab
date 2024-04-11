@@ -3,6 +3,7 @@ package gitlab
 import (
 	"fmt"
 
+	"github.com/sirupsen/logrus"
 	gitlab "github.com/xanzy/go-gitlab"
 )
 
@@ -88,11 +89,15 @@ func (g *CommentService) List(number int) ([]*gitlab.Note, error) {
 			break
 		}
 
-		opt.Page = resp.NextPage
-
 		if sentinel > maxPages {
-			return nil, fmt.Errorf("gitlab.comment.list: too many pages, something went wrong")
+			logE := logrus.WithFields(logrus.Fields{
+				"program": "tfcmt",
+			})
+			logE.WithField("maxPages", maxPages).Debug("gitlab.comment.list: too many pages, something went wrong")
+			break
 		}
+
+		opt.Page = resp.NextPage
 	}
 
 	return allComments, nil
