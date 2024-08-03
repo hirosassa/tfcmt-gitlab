@@ -49,6 +49,7 @@ type Config struct {
 	Templates        map[string]string
 	UseRawOutput     bool
 	Patch            bool
+	SkipNoChanges    bool
 }
 
 // MergeRequest represents GitLab Merge Request metadata

@@ -208,6 +208,33 @@ func TestNotifyNotify(t *testing.T) { //nolint:maintidx
 			exitCode: 0,
 		},
 		{
+			name: "valid with no change, then skip comment",
+			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
+				api := gitlabmock.NewMockAPI(ctrl)
+				api.EXPECT().CreateMergeRequestNote(gomock.Any(), gomock.Any()).Times(0)
+				return api
+			},
+			config: Config{
+				Token:     "token",
+				NameSpace: "namespace",
+				Project:   "project",
+				MR: MergeRequest{
+					Revision: "",
+					Number:   1,
+				},
+				Parser:             terraform.NewPlanParser(),
+				Template:           terraform.NewPlanTemplate(terraform.DefaultPlanTemplate),
+				ParseErrorTemplate: terraform.NewPlanParseErrorTemplate(terraform.DefaultPlanTemplate),
+				SkipNoChanges:      true,
+			},
+			paramExec: notifier.ParamExec{
+				CombinedOutput: "No changes. Infrastructure is up-to-date.",
+				ExitCode:       0,
+			},
+			ok:       true,
+			exitCode: 0,
+		},
+		{
 			name: "valid, contains destroy, but not to notify",
 			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
 				api := gitlabmock.NewMockAPI(ctrl)

@@ -89,6 +89,11 @@ func (g *NotifyService) Notify(param notifier.ParamExec) (int, error) { //nolint
 		logE.WithField("size", len(comments)).Debug("list comments")
 	}
 
+	if result.HasNoChanges && result.Warning == "" && len(errMsgs) == 0 && cfg.SkipNoChanges {
+		logE.Debug("skip posting a comment because there is no change")
+		return result.ExitCode, nil
+	}
+
 	logE.Debug("create a comment")
 
 	if err := g.client.Comment.Post(body, PostOptions{
