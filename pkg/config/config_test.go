@@ -152,11 +152,13 @@ func createDummy(file string) {
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
+	if err := f.Close(); err != nil {
+		panic(err)
+	}
 }
 
 func removeDummy(file string) {
-	os.Remove(file)
+	_ = os.Remove(file)
 }
 
 func TestFind(t *testing.T) { //nolint:paralleltest
