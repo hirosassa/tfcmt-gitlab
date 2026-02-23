@@ -12,7 +12,7 @@ package gitlabmock
 import (
 	reflect "reflect"
 
-	gitlab "github.com/xanzy/go-gitlab"
+	gitlab "gitlab.com/gitlab-org/api/client-go"
 	gomock "go.uber.org/mock/gomock"
 )
 
@@ -180,14 +180,14 @@ func (mr *MockAPIMockRecorder) ListMergeRequestNotes(mergeRequest, opt any, opti
 }
 
 // ListMergeRequestsByCommit mocks base method.
-func (m *MockAPI) ListMergeRequestsByCommit(sha string, options ...gitlab.RequestOptionFunc) ([]*gitlab.MergeRequest, *gitlab.Response, error) {
+func (m *MockAPI) ListMergeRequestsByCommit(sha string, options ...gitlab.RequestOptionFunc) ([]*gitlab.BasicMergeRequest, *gitlab.Response, error) {
 	m.ctrl.T.Helper()
 	varargs := []any{sha}
 	for _, a := range options {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "ListMergeRequestsByCommit", varargs...)
-	ret0, _ := ret[0].([]*gitlab.MergeRequest)
+	ret0, _ := ret[0].([]*gitlab.BasicMergeRequest)
 	ret1, _ := ret[1].(*gitlab.Response)
 	ret2, _ := ret[2].(error)
 	return ret0, ret1, ret2

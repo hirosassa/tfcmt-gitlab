@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/hirosassa/tfcmt-gitlab/pkg/terraform"
-	gitlab "github.com/xanzy/go-gitlab"
+	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
 // EnvToken is GitLab API Token

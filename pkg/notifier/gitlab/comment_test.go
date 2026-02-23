@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	gitlabmock "github.com/hirosassa/tfcmt-gitlab/pkg/notifier/gitlab/gen"
-	gitlab "github.com/xanzy/go-gitlab"
+	gitlab "gitlab.com/gitlab-org/api/client-go"
 	"go.uber.org/mock/gomock"
 )
 
@@ -26,7 +26,7 @@ func TestCommentPost(t *testing.T) {
 			config: newFakeConfig(),
 			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
 				api := gitlabmock.NewMockAPI(ctrl)
-				api.EXPECT().CreateMergeRequestNote(1, &gitlab.CreateMergeRequestNoteOptions{Body: gitlab.String(body)}).Return(&gitlab.Note{}, nil, nil)
+				api.EXPECT().CreateMergeRequestNote(1, &gitlab.CreateMergeRequestNoteOptions{Body: gitlab.Ptr(body)}).Return(&gitlab.Note{}, nil, nil)
 				return api
 			},
 			body: body,
@@ -42,8 +42,8 @@ func TestCommentPost(t *testing.T) {
 			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
 				api := gitlabmock.NewMockAPI(ctrl)
 				mriid := 1
-				api.EXPECT().ListMergeRequestsByCommit("abcd").Return([]*gitlab.MergeRequest{{IID: mriid}}, nil, nil)
-				api.EXPECT().CreateMergeRequestNote(mriid, &gitlab.CreateMergeRequestNoteOptions{Body: gitlab.String(body)}).Return(&gitlab.Note{}, nil, nil)
+				api.EXPECT().ListMergeRequestsByCommit("abcd").Return([]*gitlab.BasicMergeRequest{{IID: int64(mriid)}}, nil, nil)
+				api.EXPECT().CreateMergeRequestNote(mriid, &gitlab.CreateMergeRequestNoteOptions{Body: gitlab.Ptr(body)}).Return(&gitlab.Note{}, nil, nil)
 				return api
 			},
 			body: body,
@@ -58,7 +58,7 @@ func TestCommentPost(t *testing.T) {
 			config: newFakeConfig(),
 			createMockGitLabAPI: func(ctrl *gomock.Controller) *gitlabmock.MockAPI {
 				api := gitlabmock.NewMockAPI(ctrl)
-				api.EXPECT().CreateMergeRequestNote(2, &gitlab.CreateMergeRequestNoteOptions{Body: gitlab.String(body)}).Return(&gitlab.Note{}, nil, nil)
+				api.EXPECT().CreateMergeRequestNote(2, &gitlab.CreateMergeRequestNoteOptions{Body: gitlab.Ptr(body)}).Return(&gitlab.Note{}, nil, nil)
 				return api
 			},
 			body: body,
@@ -89,7 +89,7 @@ func TestCommentPost(t *testing.T) {
 				api := gitlabmock.NewMockAPI(ctrl)
 				api.EXPECT().ListMergeRequestsByCommit("revision").Return(nil, nil, errors.New("error"))
 				// PostCommitComment should be called
-				api.EXPECT().PostCommitComment("revision", &gitlab.PostCommitCommentOptions{Note: gitlab.String(body)}).Return(&gitlab.CommitComment{}, nil, nil)
+				api.EXPECT().PostCommitComment("revision", &gitlab.PostCommitCommentOptions{Note: gitlab.Ptr(body)}).Return(&gitlab.CommitComment{}, nil, nil)
 				return api
 			},
 			body: body,

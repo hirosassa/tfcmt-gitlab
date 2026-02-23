@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/sirupsen/logrus"
-	gitlab "github.com/xanzy/go-gitlab"
+	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
 const (
@@ -40,7 +40,7 @@ func (g *CommentService) Post(body string, opt PostOptions) error {
 
 	_, _, err := g.client.API.CreateMergeRequestNote(
 		opt.Number,
-		&gitlab.CreateMergeRequestNoteOptions{Body: gitlab.String(body)},
+		&gitlab.CreateMergeRequestNoteOptions{Body: gitlab.Ptr(body)},
 	)
 	return err
 }
@@ -48,7 +48,7 @@ func (g *CommentService) Post(body string, opt PostOptions) error {
 func (g *CommentService) postForRevision(body, revision string) error {
 	_, _, err := g.client.API.PostCommitComment(
 		revision,
-		&gitlab.PostCommitCommentOptions{Note: gitlab.String(body)},
+		&gitlab.PostCommitCommentOptions{Note: gitlab.Ptr(body)},
 	)
 	return err
 }
@@ -58,7 +58,7 @@ func (g *CommentService) Patch(note int, body string, opt PostOptions) error {
 	_, _, err := g.client.API.UpdateMergeRequestNote(
 		opt.Number,
 		note,
-		&gitlab.UpdateMergeRequestNoteOptions{Body: gitlab.String(body)},
+		&gitlab.UpdateMergeRequestNoteOptions{Body: gitlab.Ptr(body)},
 	)
 	return err
 }
