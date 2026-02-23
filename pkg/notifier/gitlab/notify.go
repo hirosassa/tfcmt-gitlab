@@ -4,7 +4,7 @@ import (
 	"github.com/hirosassa/tfcmt-gitlab/pkg/notifier"
 	"github.com/hirosassa/tfcmt-gitlab/pkg/terraform"
 	"github.com/sirupsen/logrus"
-	gitlab "github.com/xanzy/go-gitlab"
+	gitlab "gitlab.com/gitlab-org/api/client-go"
 )
 
 // NotifyService handles communication with the notification related
@@ -77,7 +77,7 @@ func (g *NotifyService) Notify(param notifier.ParamExec) (int, error) { //nolint
 
 			if template.IsSamePlan(comment.Body) {
 				logE.Debugf("Patch comment from `%s` to `%s`", comment.Body, body)
-				if err := g.client.Comment.Patch(comment.ID, body, PostOptions{
+				if err := g.client.Comment.Patch(int(comment.ID), body, PostOptions{
 					Number:   cfg.MR.Number,
 					Revision: cfg.MR.Revision,
 				}); err != nil {

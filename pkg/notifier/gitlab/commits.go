@@ -19,7 +19,7 @@ func (g *CommitsService) ListMergeRequestIIDsByRevision(revision string) ([]int,
 
 	result := make([]int, len(mrs))
 	for i, mr := range mrs {
-		result[i] = mr.IID
+		result[i] = int(mr.IID)
 	}
 	return result, nil
 }
