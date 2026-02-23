@@ -280,7 +280,7 @@ func addTemplates(tpl string, templates map[string]string) string {
 }
 
 func (t *Template) IsSamePlan(executedStr string) bool {
-	if _, ok := t.CommonTemplate.Vars["target"]; !ok {
+	if _, ok := t.Vars["target"]; !ok {
 		return false
 	}
 

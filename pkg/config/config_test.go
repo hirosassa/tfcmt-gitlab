@@ -117,7 +117,7 @@ This plan contains **resource deletion**. Please check the plan result very care
 				if !testCase.ok {
 					t.Error("got no error but want error")
 				} else if diff := cmp.Diff(cfg, testCase.cfg); diff != "" {
-					t.Errorf(diff)
+					t.Errorf("%s", diff)
 				}
 			} else {
 				if testCase.ok {
@@ -152,11 +152,13 @@ func createDummy(file string) {
 	if err != nil {
 		panic(err)
 	}
-	defer f.Close()
+	if err := f.Close(); err != nil {
+		panic(err)
+	}
 }
 
 func removeDummy(file string) {
-	os.Remove(file)
+	_ = os.Remove(file)
 }
 
 func TestFind(t *testing.T) { //nolint:paralleltest
