@@ -308,7 +308,7 @@ func TestNotifyNotify(t *testing.T) { //nolint:maintidx
 				t.Errorf("test case: %s, got error %q", testCase.name, err)
 			}
 			if exitCode != testCase.exitCode {
-				t.Errorf("test case: %s, got %q but want %q", testCase.name, exitCode, testCase.exitCode)
+				t.Errorf("test case: %s, got %d but want %d", testCase.name, exitCode, testCase.exitCode)
 			}
 		})
 	}
