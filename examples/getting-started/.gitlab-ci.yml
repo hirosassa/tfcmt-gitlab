@@ -40,7 +40,7 @@ fmt:
   before_script:
     - *scripts_install_tools_using_aqua
   extends:
-    - .fmt_common
+    - .fmt-common
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
@@ -49,7 +49,7 @@ plan:
   before_script:
     - *scripts_install_tools_using_aqua
   extends:
-    - .plan_common
+    - .plan-common
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 
@@ -58,6 +58,6 @@ apply:
   before_script:
     - *scripts_install_tools_using_aqua
   extends:
-    - .apply_common
+    - .apply-common
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
