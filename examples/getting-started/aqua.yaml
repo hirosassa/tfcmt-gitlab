@@ -3,7 +3,7 @@
 # https://aquaproj.github.io/
 registries:
   - type: standard
-    ref: v3.28.0 # renovate: depName=aquaproj/aqua-registry
+    ref: v4.579.0 # renovate: depName=aquaproj/aqua-registry
 packages:
-  - name: tfutils/tfenv@v3.0.0
-  - name: hirosassa/tfcmt-gitlab@v0.1.4
+  - name: tfutils/tfenv@v3.2.2
+  - name: hirosassa/tfcmt-gitlab@v0.2.2
